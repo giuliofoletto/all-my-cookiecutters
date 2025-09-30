@@ -1,0 +1,11 @@
+{
+    "project_name": "Python Project",
+    "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}",
+    "description": "An awesome python project",
+    "__prompts__": {
+      "project_name": "Enter project name",
+      "project_slug": "Enter package name",
+      "description": "Enter brief description"
+    }
+  }
+  

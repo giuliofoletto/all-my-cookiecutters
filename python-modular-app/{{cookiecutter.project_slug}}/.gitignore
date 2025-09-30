@@ -1,0 +1,12 @@
+# Ignore build stuff
+**/__pycache__/*
+**/build/*
+**/dist/*
+**/*.egg-info/*
+# Ignore editor config
+.vscode/*
+# Ignore data files
+data/*
+results/*
+# Ignore playground folder
+playground/*
