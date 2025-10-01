@@ -6,12 +6,11 @@
     "author_email": "",
     "description": "An awesome python project",
     "__prompts__": {
-      "project_name": "Enter project name",
-      "project_slug": "Enter package name",
-      "repo_name": "Enter repository name for root directory",
-      "author_name": "Enter author name",
-      "author_email": "Enter author email address",
-      "description": "Enter brief description"
+        "project_name": "Enter project name",
+        "project_slug": "Enter package name",
+        "repo_name": "Enter repository name for root directory",
+        "author_name": "Enter author name",
+        "author_email": "Enter author email address",
+        "description": "Enter brief description"
     }
-  }
-  
+}
