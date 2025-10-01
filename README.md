@@ -22,3 +22,6 @@ will create a project in your `Desktop` following the python-modular-app templat
 
 In general, the content of this repository is distributed under the license in [LICENSE.txt](./LICENSE.txt).
 Some subparts are derivatives of other people open-source work, for which the license is found in each specific file.
+In particular:
+
+-   `pandoc-document` is based on [eisvogel](https://github.com/Wandmalfarbe/pandoc-latex-template) by John MacFarlane, Pascal Wagler and others, with contributions by Astrid Bergman.

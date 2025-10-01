@@ -1,0 +1,10 @@
+{
+    "title": "Document Title",
+    "file_name": "{{ cookiecutter.title.lower().replace(' ', '_').replace('-', '_') }}",
+    "logo_text": "",
+    "__prompts__": {
+        "title": "Enter document title",
+        "file_name": "Enter file and folder name",
+        "logo_text": "Enter text to replace logo if not supplied"
+    }
+}
