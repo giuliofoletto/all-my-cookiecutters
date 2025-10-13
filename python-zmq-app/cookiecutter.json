@@ -1,0 +1,16 @@
+{
+    "project_name": "Python Project",
+    "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_').replace('-', '_') }}",
+    "repo_name": "{{ cookiecutter.project_slug.lower().replace('_', '-') }}",
+    "author_name": "",
+    "author_email": "",
+    "description": "An awesome python project using threads orchestrated with ZeroMQ",
+    "__prompts__": {
+        "project_name": "Enter project name",
+        "project_slug": "Enter package name",
+        "repo_name": "Enter repository name for root directory",
+        "author_name": "Enter author name",
+        "author_email": "Enter author email address",
+        "description": "Enter brief description"
+    }
+}
