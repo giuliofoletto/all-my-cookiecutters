@@ -5,7 +5,7 @@ import zmq
 
 logger = logging.getLogger(__name__)
 
-PAIR_ADDR = "inproc://control_communicator"
+POLLING_TIMEOUT_MS = 1  # in milliseconds
 
 
 def create_communicator(context, port, name, peers):
@@ -15,7 +15,7 @@ def create_communicator(context, port, name, peers):
 class Communicator:
     def __init__(self, context, port, name, peers):
         self.setup(context, port, name, peers)
-        self.receive_loop()
+        self.main_loop()
         self.finish()
 
     def setup(self, context, port, name, peers):
@@ -32,24 +32,24 @@ class Communicator:
             connection_string = f"tcp://{peer_ip}:{peer_port}"
             self.dealer.connect(connection_string)
 
-        self.pair = context.socket(zmq.PAIR)
-        self.pair.bind(PAIR_ADDR)
+        self.control_socket = context.socket(zmq.PAIR)
+        self.control_socket.bind("inproc://control_communicator")
         self.poller = zmq.Poller()
         self.poller.register(self.router, zmq.POLLIN)
-        self.poller.register(self.pair, zmq.POLLIN)
+        self.poller.register(self.control_socket, zmq.POLLIN)
         self.should_continue = True
 
         logger.info(f"Communicator {name} initialized")
 
-    def receive_loop(self):
+    def main_loop(self):
         while self.should_continue:
-            events = self.poller.poll()
+            events = self.poller.poll(POLLING_TIMEOUT_MS)
             for event in events:
-                if event[0] == self.pair:
+                if event[0] == self.control_socket:
                     try:
-                        msg = self.pair.recv_json()
+                        msg = self.control_socket.recv_json()
                     except json.JSONDecodeError:
-                        logger.warning("Received invalid JSON message")
+                        logger.warning("Received invalid JSON message from controller")
                         continue
                     else:  # Only if try succeeds
                         logger.debug(
@@ -62,40 +62,46 @@ class Communicator:
                             self.should_continue = False
                             self.send_control("ack")
                 elif event[0] == self.router:
+                    sender = self.router.recv().decode()  # identity frame
                     try:
                         msg = self.router.recv_json()
                     except json.JSONDecodeError:
-                        logger.warning("Received invalid JSON message")
+                        logger.warning(
+                            f"Received invalid JSON message from peer {sender}"
+                        )
                         continue
                     else:  # Only if try succeeds
-                        self.process_message(msg)
+                        self.process_peer_message(msg)
 
-    def send(self, recipient, command, parameters=None):
+    def send_peer(self, recipient, command, parameters=None):
         msg = {"recipient": recipient, "command": command}
         if parameters is not None:
             msg["parameters"] = parameters
         self.dealer.send_json(msg)
 
     def send_control(self, command, parameters=None):
-        msg = {"command": command}
+        msg = {"recipient": self.name, "command": command}
         if parameters is not None:
             msg["parameters"] = parameters
-        self.pair.send_json(msg)
+        self.control_socket.send_json(msg)
 
-    def process_message(self, msg):
-        if msg.get("recipient", None) != self.name:
-            logger.debug(f"Message not for me: {msg}")
-            return
-        command = msg.get("command", None)
-        parameters = msg.get("parameters", {})
-        if command == "close":
-            logger.info("Termination command received from peer")
-            self.send_control("close")
+    def process_peer_message(self, sender, msg):
+        recipient = msg.get("recipient", None)
+        if recipient != self.name:
+            logger.debug(
+                f"Communicator {self.name} received a message from {sender} to {recipient}, ignoring"
+            )
+        else:
+            command = msg.get("command", None)
+            parameters = msg.get("parameters", {})
+            if command == "close":
+                logger.info(f"Termination command received from peer {sender}")
+                self.send_control("close")
 
     def finish(self):
         self.router.close()
         self.dealer.close()
-        self.pair.close()
+        self.control_socket.close()
         self.poller.unregister(self.router)
-        self.poller.unregister(self.pair)
+        self.poller.unregister(self.control_socket)
         logger.info(f"Communicator {self.name} terminated")
