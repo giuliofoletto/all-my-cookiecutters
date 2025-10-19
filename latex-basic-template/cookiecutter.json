@@ -1,0 +1,17 @@
+{
+    "project_name": "Latex Project",
+    "document_title": "{{ cookiecutter.project_name }}",
+    "author_name": "Name Surname",
+    "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '-') }}",
+    "build_directory": "~/builds",
+    "use_subdirectory": "N",
+    "__prompts__": {
+      "project_name": "Enter project name",
+      "document_title": "Enter title of main document",
+      "author_name": "Enter the name of the author",
+      "project_slug": "Enter project folder name",
+      "build_directory": "Enter full path of build directory, using '/' or '\\\\'",
+      "use_subdirectory": "Do you want to create a build subdirectory? [y/N]"
+    }
+  }
+  
